@@ -1,6 +1,6 @@
 var selector = d3.select("#selDataset");
 
-d3.json("../../samples.json").then(data => {
+d3.json("../samples.json").then(data => {
   var names = data.names;
   var metadata = data.metadata;
   var samples = data.samples;
