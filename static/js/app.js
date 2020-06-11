@@ -123,7 +123,7 @@ Plotly.newPlot('gauge', data3, layout);
 });
 
 function loadData() {
-  d3.json("./samples.json").then(data => {
+  d3.json("./data/samples.json").then(data => {
     var names = data.names;
     var metadata = data.metadata;
     var samples = data.samples;
