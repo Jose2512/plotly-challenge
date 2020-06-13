@@ -1,0 +1,28 @@
+.demoinf{
+    font-family: 'MuseoModerno', cursive;;
+    font-weight: 300;
+}
+#pagetitle{
+    font-family: 'MuseoModerno', cursive;;
+    font-weight: 300;
+    font-size: 30px;
+}
+.padding{
+    padding-top: 30px;
+}
+#subject-select{
+    color: white;
+}
+.bg-dark{
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-color: #ffffff;
+}
+body{
+    background-color: #bdbdbd;
+}
+#gauge{
+    width: 350px;
+    height: 350px;
+    align-self: center;
+}

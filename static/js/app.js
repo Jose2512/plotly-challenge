@@ -27,36 +27,88 @@ d3.json("./data/samples.json").then(data => {
   });
   // Sample Data
   var singleMetadata = Object.entries(metadata[0]);
-  singleMetadata.forEach ((element) => {
+  singleMetadata.forEach (([key, value]) => {
   var textBox = d3.select("#sample-metadata").append("p")
-  textBox.text(`${element[0]} : ${element[1]}`);
+  textBox.classed('demoinf', true)
+  textBox.text(`${key} : ${value}`);
   });
-  // First Graph
+  // First Graph Data
   var otuIds = samples[0].otu_ids
   var strotuIds = otuIds.map(function(e){return 'OTU ' + e.toString()});
   var sampleValues = samples[0].sample_values
   var top10otu = strotuIds.slice(0,10).reverse()
   var top10samples = sampleValues.slice(0,10).reverse();
+  // First Graph Trace
   trace1 = {
     x: top10samples,
     y: top10otu,
     type: 'bar',
-    orientation: 'h'
+    orientation: 'h',
+    marker:{
+      color: 'rgba(255,255,255,0.5)'
+    },
   };
+    // First Graph Layout
+  var layoutBar={
+    margin: {
+      t: 30,
+      pad: 4
+    },
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    height: 350,
+    xaxis:{
+      color:'rgb(255,255,255)',
+      tickfont: {
+        family: "MuseoModerno",
+      }
+    },
+    yaxis:{
+    color:'rgb(255,255,255)',
+    tickfont: {
+      family: "MuseoModerno",
+      }
+    }
+    };
   var data = [trace1]
-  Plotly.newPlot("bar", data)
+  Plotly.newPlot("bar", data, layoutBar, )
+  
   // Bubble graph
   var trace2 = {
     x: otuIds,
     y: sampleValues,
     mode: 'markers',
     marker: {
+      colorscale: 'Earth',
       color: otuIds,
       size: sampleValues
     }
   };
+  var layoutBubble={
+    height: 320, 
+    margin: {
+      t: 30,
+      pad: 4
+    },
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    xaxis:{
+      showgrid: false,
+      color:'rgb(255,255,255)',
+      tickfont: {
+        family: "MuseoModerno",
+      }
+    },
+    yaxis:{
+    showgrid: false,
+    color:'rgb(255,255,255)',
+    tickfont: {
+      family: "MuseoModerno",
+      }
+    }
+    };
   var data2 = [trace2]
-  Plotly.newPlot("bubble", data2)
+  Plotly.newPlot("bubble", data2,layoutBubble)
   //gauge-needle graph
   var path = needleCalc(metadata[0].wfreq);
   var data3 = [
@@ -67,28 +119,47 @@ d3.json("./data/samples.json").then(data => {
       type: "indicator",
       mode: "gauge+number",
       gauge: {
-        axis: { range: [null, 9]},
+        bar: {
+          color: "rgba (255,255,255,0.5"
+        },
+        axis: { 
+          range: [null, 9]},
+        
         steps: [
-          { range: [0, 1], color: 'rgb(253, 254, 77)' },
-          { range: [1, 2], color: 'rgb(224, 251, 85)' },
-          { range: [2, 3], color: 'rgb(196, 248, 93)' },
-          { range: [3, 4], color: 'rgb(168, 245, 101)' },
-          { range: [4, 5], color: 'rgb(140, 242, 109)' },
-          { range: [5, 6], color: 'rgb(112, 240, 117)' },
-          { range: [6, 7], color: 'rgb(84, 237, 125)' },
-          { range: [7, 8], color: 'rgb(56, 234, 133)' },
-          { range: [8, 9], color: 'rgb(28, 231, 141)' },
+          { range: [0, 1], color: 'rgba(127, 12, 150, .05)' },
+          { range: [1, 2], color: 'rgba(127, 12, 150, .1)' },
+          { range: [2, 3], color: 'rgba(127, 12, 150, .15)' },
+          { range: [3, 4], color: 'rgba(127, 12, 150, .2)' },
+          { range: [4, 5], color: 'rgba(127, 12, 150, .25)' },
+          { range: [5, 6], color: 'rgba(127, 12, 150, .3)' },
+          { range: [6, 7], color: 'rgba(127, 12, 150, .35)' },
+          { range: [7, 8], color: 'rgba(127, 12, 150, .40)' },
+          { range: [8, 9], color: 'rgba(127, 12, 150, .45)' },
         ],
       }
     }
   ];
   var layout = {
-  shapes:[{
+    width: 340,
+    margin: {
+      l:5,
+      t:0,
+      b:0,
+      r:5,
+      pad: 4
+    },
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    font:{
+      color: "rgb(255,255,255)",
+      family: "MuseoModerno",
+    },
+    shapes:[{
       type: 'path',
       path: path,
-      fillcolor: '850000',
+      fillcolor: 'rgb(204,45,232)',
       line: {
-        color: '850000'
+        color: 'rgb(204,45,232)'
       }
     },{
       type: 'circle',
@@ -96,7 +167,10 @@ d3.json("./data/samples.json").then(data => {
       y0:0.2,
       x1:0.525,
       y1:0.25,
-      fillcolor: '850000',
+      fillcolor: 'rgb(204,45,232)',
+      line: {
+        color: 'rgb(204,45,232)'
+      }
     }]
   };
 Plotly.newPlot('gauge', data3, layout);
@@ -112,9 +186,10 @@ function loadData() {
         var singleMetadata = Object.entries(element);
         d3.select("#sample-metadata").html("")
         var wfreqValue = element.wfreq
-        singleMetadata.forEach ((element) => {
+        singleMetadata.forEach (([key, value]) => {
           var textBox = d3.select("#sample-metadata").append("p")
-          textBox.text(`${element[0]} : ${element[1]}`);
+          textBox.classed('demoinf', true)
+          textBox.text(`${key} : ${value}`);
           });
         
         var path = needleCalc(wfreqValue);
@@ -122,9 +197,9 @@ function loadData() {
           shapes:[{
             type: 'path',
             path: path,
-            fillcolor: '850000',
+            fillcolor: 'rgb(204,45,232)',
             line: {
-              color: '850000'
+              color: 'rgb(204,45,232)'
             }
           },{
             type: 'circle',
@@ -132,7 +207,10 @@ function loadData() {
             y0:0.2,
             x1:0.525,
             y1:0.25,
-            fillcolor: '850000',
+            fillcolor: 'rgb(204,45,232)',
+            line: {
+              color: 'rgb(204,45,232)'
+            }
           }]
           };
         Plotly.relayout("gauge", updatelayout	);
@@ -146,8 +224,18 @@ function loadData() {
         var sampleValues = element.sample_values
         var top10otu = strotuIds.slice(0,10).reverse()
         var top10samples = sampleValues.slice(0,10).reverse();
-        Plotly.restyle("bar", "x", [top10samples]);
-        Plotly.restyle("bar", "y", [top10otu]);
+        Plotly.animate("bar",{
+          data:[{x:top10samples, y:top10otu}]
+        },{
+            transition: {
+              duration: 500,
+              easing: 'cubic-in-out'
+            },
+            frame: {
+              duration: 500
+            }
+          }
+        )      
         Plotly.restyle("bubble", "x", [otuIds]);
         Plotly.restyle("bubble", "y", [sampleValues]);
         Plotly.restyle("bubble", "marker.color", [otuIds]);
