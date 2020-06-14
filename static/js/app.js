@@ -148,6 +148,7 @@ function plotBubble(x,y,text){
       text: text,
       mode: 'markers',
       marker: {
+        sizeref: 2,
         colorscale: 'Earth',
         color: x,
         size: y
