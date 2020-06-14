@@ -34,6 +34,7 @@ d3.json("./data/samples.json").then(data => {
   });
   // First Graph Data
   var otuIds = samples[0].otu_ids
+  var otuLabels = samples[0].otu_labels
   var strotuIds = otuIds.map(function(e){return 'OTU ' + e.toString()});
   var sampleValues = samples[0].sample_values
   var top10otu = strotuIds.slice(0,10).reverse()
@@ -77,6 +78,7 @@ d3.json("./data/samples.json").then(data => {
   var trace2 = {
     x: otuIds,
     y: sampleValues,
+    text: otuLabels,
     mode: 'markers',
     marker: {
       colorscale: 'Earth',
@@ -180,6 +182,7 @@ function loadData() {
   d3.json("./data/samples.json").then(data => {
     var metadata = data.metadata;
     var samples = data.samples;
+    var otuLabels = samples.otu_labels
     // Sample Data
     metadata.forEach(element =>{
       if (element.id == selector.node().value){
@@ -238,6 +241,7 @@ function loadData() {
         )      
         Plotly.restyle("bubble", "x", [otuIds]);
         Plotly.restyle("bubble", "y", [sampleValues]);
+        Plorly.restyle("bubble", "text", [otuLabels]);
         Plotly.restyle("bubble", "marker.color", [otuIds]);
         Plotly.restyle("bubble", "marker.size", [sampleValues]);        
       }
