@@ -15,108 +15,19 @@ function needleCalc(wfreqTarget){
 
 var selector = d3.select("#selDataset");
 
-d3.json("./data/samples.json").then(data => {
-  var names = data.names;
-  var metadata = data.metadata;
-  var samples = data.samples;
-  // Names for Selection
-  names.forEach(element => {
-      var options = selector.append("option");
-      options.text(element);
-      options.attr("value", element)
-  });
-  // Sample Data
-  var singleMetadata = Object.entries(metadata[0]);
-  singleMetadata.forEach (([key, value]) => {
-  var textBox = d3.select("#sample-metadata").append("p")
-  textBox.classed('demoinf', true)
-  textBox.text(`${key} : ${value}`);
-  });
-  // First Graph Data
-  var otuIds = samples[0].otu_ids
-  var otuLabels = samples[0].otu_labels
-  var strotuIds = otuIds.map(function(e){return 'OTU ' + e.toString()});
-  var sampleValues = samples[0].sample_values
-  var top10otu = strotuIds.slice(0,10).reverse()
-  var top10samples = sampleValues.slice(0,10).reverse();
-  // First Graph Trace
-  trace1 = {
-    x: top10samples,
-    y: top10otu,
-    type: 'bar',
-    orientation: 'h',
-    marker:{
-      color: 'rgba(255,255,255,0.5)'
-    },
-  };
-    // First Graph Layout
-  var layoutBar={
-    margin: {
-      t: 30,
-      pad: 4
-    },
-    paper_bgcolor: 'rgba(0,0,0,0)',
-    plot_bgcolor: 'rgba(0,0,0,0)',
-    height: 350,
-    xaxis:{
-      color:'rgb(255,255,255)',
-      tickfont: {
-        family: "MuseoModerno",
-      }
-    },
-    yaxis:{
-    color:'rgb(255,255,255)',
-    tickfont: {
-      family: "MuseoModerno",
-      }
-    }
-    };
-  var data = [trace1]
-  Plotly.newPlot("bar", data, layoutBar, )
-  
-  // Bubble graph
-  var trace2 = {
-    x: otuIds,
-    y: sampleValues,
-    text: otuLabels,
-    mode: 'markers',
-    marker: {
-      colorscale: 'Earth',
-      color: otuIds,
-      size: sampleValues
-    }
-  };
-  var layoutBubble={
-    height: 320, 
-    margin: {
-      t: 30,
-      pad: 4
-    },
-    paper_bgcolor: 'rgba(0,0,0,0)',
-    plot_bgcolor: 'rgba(0,0,0,0)',
-    xaxis:{
-      showgrid: false,
-      color:'rgb(255,255,255)',
-      tickfont: {
-        family: "MuseoModerno",
-      }
-    },
-    yaxis:{
-    showgrid: false,
-    color:'rgb(255,255,255)',
-    tickfont: {
-      family: "MuseoModerno",
-      }
-    }
-    };
-  var data2 = [trace2]
-  Plotly.newPlot("bubble", data2,layoutBubble)
-  //gauge-needle graph
-  var path = needleCalc(metadata[0].wfreq);
+function fillOption(target, data){
+  data.forEach(element => {
+    var options = target.append("option");
+    options.text(element);
+    options.attr("value", element)
+});
+}
+
+function plotGauge(gaugePoint){
   var data3 = [
     {
       domain: { x: [0, 1], y: [0, 1] },
-      value: metadata[0].wfreq,
+      value: gaugePoint,
       title: { text: "Scrubs per week" },
       type: "indicator",
       mode: "gauge+number",
@@ -158,7 +69,7 @@ d3.json("./data/samples.json").then(data => {
     },
     shapes:[{
       type: 'path',
-      path: path,
+      path: needleCalc(gaugePoint),
       fillcolor: 'rgb(204,45,232)',
       line: {
         color: 'rgb(204,45,232)'
@@ -176,50 +87,112 @@ d3.json("./data/samples.json").then(data => {
     }]
   };
 Plotly.newPlot('gauge', data3, layout);
-});
+}
 
-function loadData() {
+function fillSample(data){
+  data.forEach(element =>{
+    if (element.id == selector.node().value){
+      var singleMetadata = Object.entries(element);
+      d3.select("#sample-metadata").html("")
+      var wfreqValue = element.wfreq
+      plotGauge(wfreqValue)
+      singleMetadata.forEach (([key, value]) => {
+        var textBox = d3.select("#sample-metadata").append("p")
+        textBox.classed('demoinf', true)
+        textBox.text(`${key} : ${value}`);
+        });
+      }
+    })
+}
+
+function plotBars(x,y){
+    var trace1 = {
+      x: x,
+      y: y,
+      type: 'bar',
+      orientation: 'h',
+      marker:{
+        color: 'rgba(255,255,255,0.5)'
+      },
+    };
+      // First Graph Layout
+    var layoutBar={
+      margin: {
+        t: 30,
+        pad: 4
+      },
+      paper_bgcolor: 'rgba(0,0,0,0)',
+      plot_bgcolor: 'rgba(0,0,0,0)',
+      height: 350,
+      xaxis:{
+        color:'rgb(255,255,255)',
+        tickfont: {
+          family: "MuseoModerno",
+        }
+      },
+      yaxis:{
+      color:'rgb(255,255,255)',
+      tickfont: {
+        family: "MuseoModerno",
+        }
+      }
+      };
+    var data = [trace1]
+    Plotly.newPlot("bar", data, layoutBar, )
+};
+  
+function plotBubble(x,y,text){
+    var trace2 = {
+      x: x,
+      y: y,
+      text: text,
+      mode: 'markers',
+      marker: {
+        colorscale: 'Earth',
+        color: x,
+        size: y
+      }
+    };
+    var layoutBubble={
+      height: 320, 
+      margin: {
+        t: 30,
+        pad: 4
+      },
+      paper_bgcolor: 'rgba(0,0,0,0)',
+      plot_bgcolor: 'rgba(0,0,0,0)',
+      xaxis:{
+        showgrid: false,
+        color:'rgb(255,255,255)',
+        tickfont: {
+          family: "MuseoModerno",
+        }
+      },
+      yaxis:{
+      showgrid: false,
+      color:'rgb(255,255,255)',
+      tickfont: {
+        family: "MuseoModerno",
+        }
+      }
+      };
+    var data2 = [trace2]
+    Plotly.newPlot("bubble", data2,layoutBubble)
+}
+
+function loadIds(){
+  d3.json("./data/samples.json").then(data => {
+    var names = data.names;
+    fillOption(selector, names)
+  })
+};
+
+function loadData(){
   d3.json("./data/samples.json").then(data => {
     var metadata = data.metadata;
     var samples = data.samples;
     var otuLabels = samples.otu_labels
-    // Sample Data
-    metadata.forEach(element =>{
-      if (element.id == selector.node().value){
-        var singleMetadata = Object.entries(element);
-        d3.select("#sample-metadata").html("")
-        var wfreqValue = element.wfreq
-        singleMetadata.forEach (([key, value]) => {
-          var textBox = d3.select("#sample-metadata").append("p")
-          textBox.classed('demoinf', true)
-          textBox.text(`${key} : ${value}`);
-          });
-        
-        var path = needleCalc(wfreqValue);
-        var updatelayout = {
-          shapes:[{
-            type: 'path',
-            path: path,
-            fillcolor: 'rgb(204,45,232)',
-            line: {
-              color: 'rgb(204,45,232)'
-            }
-          },{
-            type: 'circle',
-            x0:0.475,
-            y0:0.2,
-            x1:0.525,
-            y1:0.25,
-            fillcolor: 'rgb(204,45,232)',
-            line: {
-              color: 'rgb(204,45,232)'
-            }
-          }]
-          };
-        Plotly.relayout("gauge", updatelayout	);
-        Plotly.restyle("gauge", "value", [wfreqValue])
-      }
-    })
+    fillSample(metadata);
     samples.forEach(element => {
       if (element.id == selector.node().value){
         var otuIds = element.otu_ids
@@ -227,24 +200,14 @@ function loadData() {
         var sampleValues = element.sample_values
         var top10otu = strotuIds.slice(0,10).reverse()
         var top10samples = sampleValues.slice(0,10).reverse();
-        Plotly.animate("bar",{
-          data:[{x:top10samples, y:top10otu}]
-        },{
-            transition: {
-              duration: 500,
-              easing: 'cubic-in-out'
-            },
-            frame: {
-              duration: 500
-            }
-          }
-        )      
-        Plotly.restyle("bubble", "x", [otuIds]);
-        Plotly.restyle("bubble", "y", [sampleValues]);
-        Plorly.restyle("bubble", "text", [otuLabels]);
-        Plotly.restyle("bubble", "marker.color", [otuIds]);
-        Plotly.restyle("bubble", "marker.size", [sampleValues]);        
+        var otuLabels = samples.otu_labels
+        plotBars(top10samples, top10otu);
+        plotBubble(otuIds, sampleValues, otuLabels);
       }
     });
-  });
-}
+  })
+};
+
+
+loadIds();
+
